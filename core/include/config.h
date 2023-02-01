@@ -1,0 +1,13 @@
+#ifndef VID2LED_CONFIG_H
+#define VID2LED_CONFIG_H
+
+#define ROWS 32
+#define COLS 32
+
+#define STATIC_BUFFER 1
+#define STATIC_BUFFER_LENGTH 16
+
+#define DEBUG_MESSAGES 1
+#define DEBUG_MSG_MAX_LENGTH 128
+
+#endif //VID2LED_CONFIG_H

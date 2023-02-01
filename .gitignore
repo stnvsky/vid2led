@@ -1,3 +1,7 @@
 # Clion
-cmake-build-debug/
-.idea
+**/.idea
+**/cmake-build-debug/
+
+# examples
+examples/linux/build
+examples/linux/vid2led
