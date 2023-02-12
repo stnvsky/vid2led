@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.4)
 project( vid2led_emulator )
 find_package( OpenCV REQUIRED )
-include_directories( ${OpenCV_INCLUDE_DIRS} )
+include_directories( ${OpenCV_INCLUDE_DIRS} ../core/include)
 add_executable( vid2led_emulator vid2led_emulator.cpp )
-target_link_libraries( vid2led_emulator ${OpenCV_LIBS} )
+target_link_libraries( vid2led_emulator ${OpenCV_LIBS} pthread)
