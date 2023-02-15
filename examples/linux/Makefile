@@ -36,6 +36,5 @@ make_dir:
 	@mkdir -p ./build
 	@mkdir -p ./build/core
 
-.PHONY: clean
 clean:
 	rm -rf ./build vid2led

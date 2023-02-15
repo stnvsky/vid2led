@@ -1,5 +1,5 @@
-#ifndef LINUX_VIDEO_H
-#define LINUX_VIDEO_H
+#ifndef VID2LED_VIDEO_H
+#define VID2LED_VIDEO_H
 
 #include <stdio.h>
 #include "buffer.h"
@@ -7,16 +7,18 @@
 typedef enum {
     VID_TYPE_DUMMY,
     VID_TYPE_AVI
-} vid_type;
+} vid_format;
 
 typedef struct video_stream_s {
-    vid_type type;
+    vid_format type;
     int (*get_frame)(matrix_t *);
-    int frames;
     int framerate;
+    int frames;
+    int frames_buffered;
+    int frames_displayed;
     FILE *fd;
 } video_stream_t;
 
-int init_video(video_stream_t* vid, const char *path, vid_type type);
+int init_video(video_stream_t* vid, const char *path, vid_format type);
 
-#endif //LINUX_VIDEO_H
+#endif // VID2LED_VIDEO_H

@@ -20,7 +20,7 @@ void debug_msg(const char* func, const char *format, ...)
 {
     va_list list;
     int written;
-    char buf[DEBUG_MSG_MAX_LENGTH+2];
+    char buf[VID2LEN_DEBUG_MSG_MAX_LENGTH+2];
     ssize_t buf_size = sizeof(buf);
 
     if ((written = snprintf(buf, buf_size, "%s - ", func)) < 0) {

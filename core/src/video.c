@@ -8,8 +8,8 @@
 static int get_frame_dummy(matrix_t *frame) {
     int i, j;
 
-    for (i = 0; i < ROWS; i++) {
-        for (j = 0; j < COLS; j++) {
+    for (i = 0; i < VID2LEN_FRAME_ROWS; i++) {
+        for (j = 0; j < VID2LEN_FRAME_COLS; j++) {
             frame[0][i][j].R = rand() % 256;
             frame[0][i][j].G = rand() % 256;
             frame[0][i][j].B = rand() % 256;
@@ -24,8 +24,10 @@ static void init_dummy(video_stream_t *vid) {
 
     vid->type = VID_TYPE_DUMMY;
     vid->get_frame = get_frame_dummy;
-    vid->frames = 120;
     vid->framerate = 24;
+    vid->frames = 120;
+    vid->frames_buffered = 0;
+    vid->frames_displayed = 0;
     vid->fd = NULL;
 }
 
@@ -38,15 +40,17 @@ static void init_avi(video_stream_t *vid, FILE *fd) {
     // [TODO]
     vid->type = VID_TYPE_AVI;
     vid->get_frame = get_frame_avi;
-    vid->frames = 0;
     vid->framerate = 0;
+    vid->frames = 0;
+    vid->frames_buffered = 0;
+    vid->frames_displayed = 0;
     vid->fd=fd;
 
     DEBUG_MSG("AVI files are not supported");
     vid = NULL;
 }
 
-int init_video(video_stream_t* vid, const char *path, vid_type type) {
+int init_video(video_stream_t* vid, const char *path, vid_format type) {
     FILE *fd = NULL;
 
     if (vid == NULL) {

@@ -1,17 +1,18 @@
-#ifndef LINUX_DRIVER_H
-#define LINUX_DRIVER_H
+#ifndef VID2LED_DISPLAY_H
+#define VID2LED_DISPLAY_H
 
-#include "buffer.h"
-#include "video.h"
+#include "vid2led.h"
 
-int display_init(rgb_buffer_t *buf, video_stream_t *vid_stream);
-int display_deinit(void);
+#define FRAMERATE_TO_USEC(x)  (1000000/x)
+
+int display_init(vid2led_t *vid2led_object);
+int display_deinit(vid2led_t *vid2led_object);
 int display_frame(matrix_t *frame);
 
-//misc
-int msleep(long msec);
-void set_timer_interrupt(void);
 void enable_interrupts(void);
 void disable_interrupts(void);
 
-#endif //LINUX_DRIVER_H
+//misc
+int msleep(long msec);
+
+#endif // VID2LED_DISPLAY_H
