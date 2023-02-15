@@ -13,11 +13,11 @@ typedef struct rgb_scalar_s {
 typedef rgb_scalar_t matrix_t[ROWS][COLS];
 
 typedef struct rgb_buffer_s {
-    matrix_t *matrix_array;
     uint16_t written;
     uint16_t len;
     uint16_t cursor_read;
     uint16_t cursor_write;
+    matrix_t *matrix_array;
 } rgb_buffer_t;
 
 int init_rgb_buffer(rgb_buffer_t *buf, uint32_t buf_len) ;

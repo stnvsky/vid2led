@@ -28,12 +28,12 @@ int init_rgb_buffer(rgb_buffer_t *buf, uint32_t buf_len) {
         return -1;
     }
 
-    buf->matrix_array = (matrix_t*)malloc(buf_len * sizeof(matrix_t));
     buf->len = buf_len;
     buf->written = 0;
     buf->cursor_read = 0;
     buf->cursor_write = 0;
-
+    buf->matrix_array = (matrix_t*)malloc(buf_len * sizeof(matrix_t));
+    
     return 0;
 }
 #endif // (STATIC_BUFFER != 0)
@@ -53,9 +53,9 @@ int read_rgb_buffer(rgb_buffer_t* buf, matrix_t *frame) {
 
 int write_rgb_buffer(rgb_buffer_t* buf, matrix_t *frame) {
     if (buf->written < buf->len) {
-        buf->cursor_write++;
-        buf->cursor_write = buf->cursor_write %  buf->len;
         memcpy(buf->matrix_array + buf->cursor_write, frame[0], sizeof(matrix_t));
+        buf->cursor_write++;
+        buf->cursor_write = buf->cursor_write % buf->len;
         buf->written++;
     } else {
         return 1;

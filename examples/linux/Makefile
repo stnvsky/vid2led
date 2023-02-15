@@ -5,19 +5,19 @@ CORE_BUILD_DIR := $(BUILD_DIR)/core
 
 TARGET = vid2led
 
-SRC = $(wildcard $(CURDIR)/*.c)
-OBJ = $(subst $(CURDIR),$(BUILD_DIR),$(SRC:.c=.o))
+SRC_EXAMPLE = $(wildcard $(CURDIR)/*.c)
+OBJ_EXAMPLE = $(subst $(CURDIR),$(BUILD_DIR),$(SRC_EXAMPLE:.c=.o))
 
 SRC_CORE = $(wildcard $(CORE_SRC_DIR)/*.c)
 OBJ_CORE = $(subst $(CORE_SRC_DIR),$(CORE_BUILD_DIR),$(SRC_CORE:.c=.o))
 
-OBJS = $(OBJ) $(OBJ_CORE)
+OBJS = $(OBJ_EXAMPLE) $(OBJ_CORE)
 DEPS = $(OBJS:.o=.d)
 
 INCLUDES = -I$(CORE_DIR)/include
 
 CFLAGS = -MMD -Wall -Wextra -O0 -g3 $(INCLUDES)
-LDFLAGS = -lm
+LDFLAGS = -lrt
 
 -include $(DEPS)
 
@@ -29,8 +29,8 @@ $(BUILD_DIR)/%.o: %.c
 $(CORE_BUILD_DIR)/%.o: $(CORE_SRC_DIR)/%.c
 	$(CC) $(CFLAGS) -o $@ -c $<
 
-$(TARGET): $(OBJ) $(OBJ_CORE)
-	$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) -o $(TARGET)
+$(TARGET): $(OBJS)
+	$(CC) $(CFLAGS) $(OBJS) -o $(TARGET) $(LDFLAGS)
 
 make_dir:
 	@mkdir -p ./build
