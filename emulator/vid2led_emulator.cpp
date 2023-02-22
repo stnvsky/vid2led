@@ -14,8 +14,8 @@
 
 using namespace cv;
 
-const int WIDTH = 640;
-const int HEIGHT = 640;
+const int WIDTH = VID2LEN_FRAME_COLS*6;
+const int HEIGHT = VID2LEN_FRAME_ROWS*6;
 
 matrix_t arr = {0};
 
@@ -173,11 +173,11 @@ int main(int argc, char** argv) {
     SocketThread::Instance()->start();
     char buffer[SocketThread::BUFFER_SIZE];
     while (1) {
-        const int dX = WIDTH/COLS;
-        const int dY = HEIGHT/ROWS;
+        const int dX = WIDTH/VID2LEN_FRAME_COLS;
+        const int dY = HEIGHT/VID2LEN_FRAME_ROWS;
 
-        for (auto i = 0; i < ROWS; i++) {
-            for (auto j = 0; j < COLS; j++) {
+        for (auto i = 0; i < VID2LEN_FRAME_ROWS; i++) {
+            for (auto j = 0; j < VID2LEN_FRAME_COLS; j++) {
                 rectangle(image,
                           Point(j * dX, i * dY),
                           Point(j * dX + dX, i * dY + dY),
