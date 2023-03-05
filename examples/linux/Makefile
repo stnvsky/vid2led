@@ -14,7 +14,7 @@ OBJ_CORE = $(subst $(CORE_SRC_DIR),$(CORE_BUILD_DIR),$(SRC_CORE:.c=.o))
 OBJS = $(OBJ_EXAMPLE) $(OBJ_CORE)
 DEPS = $(OBJS:.o=.d)
 
-INCLUDES = -I$(CORE_DIR)/include -I.
+INCLUDES = -I$(CORE_DIR)/include
 
 CFLAGS = -MMD -Wall -Wextra -O0 -g3 $(INCLUDES)
 LDFLAGS = -lrt

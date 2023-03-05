@@ -20,5 +20,6 @@ typedef struct video_stream_s {
 } video_stream_t;
 
 int init_video(video_stream_t* vid, const char *path, vid_format type);
+int deinit_video(video_stream_t* vid);
 
 #endif // VID2LED_VIDEO_H

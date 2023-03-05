@@ -12,6 +12,7 @@ typedef struct vid2led_s {
     const char* video_path;
     rgb_buffer_t rgb_buffer;
     video_stream_t video_stream;
+    uint8_t initialized;
 } vid2led_t;
 
 #include "display.h"

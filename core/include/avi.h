@@ -6,6 +6,7 @@
 #define LINUX_AVI_H
 
 #include <stdint.h>
+#include "vid2led.h"
 
 typedef uint32_t FOURCC;
 
@@ -51,10 +52,7 @@ typedef struct {
 typedef unsigned char uint8;
 typedef unsigned int uint;
 
-
-#define FILE_NAME "./test.avi"
-
 int init_file_avi(FILE* fp);
-int get_frame_avi(FILE* fp);
+int get_frame_avi(matrix_t *frame);
 
 #endif //LINUX_AVI_H

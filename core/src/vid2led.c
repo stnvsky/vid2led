@@ -7,6 +7,7 @@
 matrix_t video_frame = {0};
 
 int vid2led_init(vid2led_t *vid2led_obj) {
+    vid2led_obj->initialized = 0;
     if (rgb_buffer_init(&vid2led_obj->rgb_buffer, vid2led_obj->buffer_length)) {
         DEBUG_MSG("Could not initialize RGB matrix buffer");
         return -1;
@@ -23,14 +24,18 @@ int vid2led_init(vid2led_t *vid2led_obj) {
         return -1;
     }
 
+    vid2led_obj->initialized = 1;
     return 0;
 }
 
 int vid2led_deinit(vid2led_t *vid2led_obj) {
     display_deinit(vid2led_obj);
+
 #if (VID2LEN_USE_STATIC_BUFFER == 0)
     free(vid2led_obj->rgb_buffer.matrix_array);
 #endif
+
+    vid2led_obj->initialized = 0;
     return 0;
 }
 
@@ -38,6 +43,11 @@ int vid2led_service(vid2led_t *vid2led_obj) {
     rgb_buffer_t *buf = &vid2led_obj->rgb_buffer;
     video_stream_t *vid = &vid2led_obj->video_stream;
     int ret;
+
+    if (!vid2led_obj->initialized) {
+        DEBUG_MSG("Error: not initialized");
+        return -1;
+    }
 
     if (vid->frames_displayed >= vid->frames) {
         return -1;
@@ -47,7 +57,9 @@ int vid2led_service(vid2led_t *vid2led_obj) {
         disable_interrupts();
         do {
             if (!rgb_buffer_is_full(buf)) {
-                vid->get_frame(&video_frame);
+                if (vid->get_frame(&video_frame)) {
+                    break;
+                }
                 vid->frames_buffered++;
                 ret = rgb_buffer_write(buf, &video_frame);
             } else {

@@ -49,7 +49,6 @@ int init_file_avi(FILE* fp) {
                 if (chr == 'v') {
                     fread(&chr, 1, 1, g_pInFile);
                     if (chr == 'i') {
-                        printf("0x%x  %d\n", i, i);
                         break;
                     }
                 }
@@ -61,7 +60,7 @@ int init_file_avi(FILE* fp) {
 }
 
 
-int get_frame_avi(FILE* fp) {
+int get_frame_avi(matrix_t *frame) {
     int n = 1;
     const char *pSrc_filename;
     const char *pDst_filename;
@@ -84,19 +83,19 @@ int get_frame_avi(FILE* fp) {
 
     /* Go to next video frame chunk */
     uint8_t chr;
-    for (uint32_t i = ftell(g_pInFile); i < avi_file_size; i++) {
+    uint32_t it = 0;
+    for (it = ftell(g_pInFile); it < avi_file_size; it++) {
         fread(&chr, 1, 1, g_pInFile);
         if (chr == '0') {  // (0,0,d,c)
             fread(&chr, 1, 1, g_pInFile);
-            i++;
+            it++;
             if (chr == '0') {
                 fread(&chr, 1, 1, g_pInFile);
-                i++;
+                it++;
                 if (chr == 'd') {
                     fread(&chr, 1, 1, g_pInFile);
-                    i++;
+                    it++;
                     if (chr == 'c') {
-                        printf("nice! 0x%x  %d\n", ftell(g_pInFile), ftell(g_pInFile));
                         fread(&g_nInFileSize, 1, 4, g_pInFile); // size
                         g_nInFileOfs = 0;
                         mcu_x = 0;
@@ -105,7 +104,26 @@ int get_frame_avi(FILE* fp) {
                     }
                 }
             }
+        } else if (chr == 'i') {
+            fread(&chr, 1, 1, g_pInFile);
+            it++;
+            if (chr == 'd') {
+                fread(&chr, 1, 1, g_pInFile);
+                it++;
+                if (chr == 'x') {
+                    fread(&chr, 1, 1, g_pInFile);
+                    it++;
+                    if (chr == '1') {
+                        return -1; // [TODO] Should be: return NO_MORE_FRAMES;
+                    }
+                }
+            }
         }
+    }
+
+    /* If no frame has been read */
+    if (it == avi_file_size) {
+        return -1; // [TODO] Should be: return NO_MORE_FRAMES;
     }
 
     /* Decode video frame chunk in JPEG format */
@@ -116,8 +134,10 @@ int get_frame_avi(FILE* fp) {
         if (status == PJPG_UNSUPPORTED_MODE) {
             printf("Progressive JPEG files are not supported.\n");
         }
+        if (status == PJPG_NOT_JPEG) {
+            printf("Not JPEG.\n");
+        }
 
-        fclose(g_pInFile);
         return 0;
     }
 
@@ -131,7 +151,6 @@ int get_frame_avi(FILE* fp) {
     if (!allocated) {
         pImage = (uint8 *) malloc(row_pitch * decoded_height);
         if (!pImage) {
-            printf("pojebało\n");
             fclose(g_pInFile);
             return 0;
         }
@@ -253,14 +272,6 @@ int get_frame_avi(FILE* fp) {
     height = decoded_height;
     comps = image_info.m_comps;
 
-    printf("width = %d, height = %d, comps = %d\n", width, height, comps);
-
-    for (int i = 0; i < width; i++) {
-        for (int j = 0; j < height; j++) {
-            printf("(%03d, %03d, %03d) ", *(pImage++), *(pImage++), *(pImage++));
-        }
-        printf("\n");
-    }
-
+    memcpy(frame, pImage, width*height*3);
     return 0;
 }

@@ -4,6 +4,7 @@
 #include "video.h"
 #include "debug_msg.h"
 
+#include "avi.h"
 
 static int get_frame_dummy(matrix_t *frame) {
     int i, j;
@@ -31,34 +32,33 @@ static void init_dummy(video_stream_t *vid) {
     vid->fd = NULL;
 }
 
-static int get_frame_avi(matrix_t *frame) {
-    (void)frame;
-    return -1;
-}
+static int init_avi(video_stream_t *vid) {
+    if (init_file_avi(vid->fd)) {
+        DEBUG_MSG("Could not init AVI file");
+        return -1;
+    }
 
-static void init_avi(video_stream_t *vid, FILE *fd) {
-    // [TODO]
     vid->type = VID_TYPE_AVI;
     vid->get_frame = get_frame_avi;
-    vid->framerate = 0;
-    vid->frames = 0;
+    vid->framerate = 1; // [TODO]
+    vid->frames = 5; // [TODO]
     vid->frames_buffered = 0;
     vid->frames_displayed = 0;
-    vid->fd=fd;
 
-    DEBUG_MSG("AVI files are not supported");
-    vid = NULL;
+    return 0;
 }
 
 int init_video(video_stream_t* vid, const char *path, vid_format type) {
-    FILE *fd = NULL;
-
     if (vid == NULL) {
         return -1;
     }
 
     if (type != VID_TYPE_DUMMY) {
-         // open file here
+        vid->fd = fopen(path, "rb");
+        if (!vid->fd) {
+            DEBUG_MSG("Could not open video file");
+            return -1;
+        }
     }
 
     switch (type) {
@@ -67,11 +67,25 @@ int init_video(video_stream_t* vid, const char *path, vid_format type) {
             init_dummy(vid);
             break;
         case VID_TYPE_AVI:
-            init_avi(vid, fd);
+            if (init_avi(vid)) {
+                return -1;
+            }
             break;
         default:
             break;
     }
 
     return 0;
+}
+
+int deinit_video(video_stream_t* vid) {
+    switch (vid->type) {
+        case VID_TYPE_DUMMY:
+            break;
+        case VID_TYPE_AVI:
+            fclose(vid->fd);
+            break;
+        default:
+            break;
+    }
 }

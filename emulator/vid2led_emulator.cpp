@@ -14,8 +14,8 @@
 
 using namespace cv;
 
-const int WIDTH = VID2LEN_FRAME_COLS*6;
-const int HEIGHT = VID2LEN_FRAME_ROWS*6;
+const int WIDTH = VID2LEN_FRAME_COLS*32;
+const int HEIGHT = VID2LEN_FRAME_ROWS*32;
 
 matrix_t arr = {0};
 
