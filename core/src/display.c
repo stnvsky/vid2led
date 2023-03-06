@@ -148,7 +148,21 @@ int display_init(vid2led_t *vid2led_object) {
 }
 
 int display_frame(matrix_t *frame) {
-    if (send(fd, frame, sizeof(matrix_t), 0) == -1) {
+    int i = 0;
+    int to_send = sizeof(matrix_t);
+    int frames = (to_send / MAX_SOCK_MESSAGE_LEN) + 1;
+
+    if (frames > 1) {
+        for (; i < (frames - 1); i++) {
+            if (send(fd, (uint8_t*)frame + (i * MAX_SOCK_MESSAGE_LEN), MAX_SOCK_MESSAGE_LEN, 0) == -1) {
+                perror("send");
+                return -1;
+            }
+            to_send -= MAX_SOCK_MESSAGE_LEN;
+        }
+    }
+
+    if (send(fd, (uint8_t*)frame+ (i * MAX_SOCK_MESSAGE_LEN), to_send, 0) == -1) {
         perror("send");
         return -1;
     }

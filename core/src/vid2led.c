@@ -15,7 +15,7 @@ int vid2led_init(vid2led_t *vid2led_obj) {
 
     if (init_video(&vid2led_obj->video_stream,
                    vid2led_obj->video_path, vid2led_obj->video_format)) {
-        DEBUG_MSG("Could not initialize RGB matrix buffer");
+        DEBUG_MSG("Could not initialize video");
         return -1;
     }
 

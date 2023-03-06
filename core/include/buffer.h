@@ -6,9 +6,9 @@
 #include "config.h"
 
 typedef struct rgb_scalar_s {
-    uint8_t R;
-    uint8_t G;
     uint8_t B;
+    uint8_t G;
+    uint8_t R;
 } rgb_scalar_t;
 
 typedef rgb_scalar_t matrix_t[VID2LEN_FRAME_ROWS][VID2LEN_FRAME_COLS];

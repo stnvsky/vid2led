@@ -14,5 +14,6 @@ int main() {
     }
 
     vid2led_deinit(&vid2led);
+
     return 0;
 }

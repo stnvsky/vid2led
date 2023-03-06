@@ -5,3 +5,7 @@
 # examples
 examples/linux/build
 examples/linux/vid2led
+
+# video files
+**.avi
+**.mpg

@@ -14,10 +14,11 @@
 
 using namespace cv;
 
-const int WIDTH = VID2LEN_FRAME_COLS*32;
-const int HEIGHT = VID2LEN_FRAME_ROWS*32;
+const int WIDTH = VID2LEN_FRAME_COLS;
+const int HEIGHT = VID2LEN_FRAME_ROWS;
 
 matrix_t arr = {0};
+matrix_t temp_arr = {0};
 
 class SocketThread {
 public:
@@ -26,6 +27,9 @@ public:
     bool start();
     void stop();
     void set_socket_path(const std::string& path);
+
+    void mutex_lock();
+    void mutex_unlock();
 
     enum {
         MAX_BACKLOG = 20,
@@ -38,7 +42,7 @@ private:
 
     static void* thread_starter(void* obj);
     static void thread_stopper(int sig, siginfo_t* siginfo, void* context);
-    void* run_server();
+    static void* run_server();
     void handle_signals();
     void cleanup_socket();
 
@@ -65,7 +69,7 @@ SocketThread::SocketThread()
           sockfd_(0),
           curr_sock_fd_(0) {
     fprintf(stdout, "Init mutex...\n");
-    pthread_mutex_init(&mutex_, NULL);
+    pthread_mutex_init(&mutex_, nullptr);
 }
 
 SocketThread::~SocketThread() {
@@ -95,6 +99,14 @@ void SocketThread::stop() {
         sockfd_ = 0;
     }
     cleanup_socket();
+}
+
+void SocketThread::mutex_lock() {
+    pthread_mutex_lock(&this->mutex_);
+}
+
+void SocketThread::mutex_unlock() {
+    pthread_mutex_unlock(&this->mutex_);
 }
 
 void SocketThread::set_socket_path(const std::string& path) {
@@ -137,7 +149,25 @@ void *SocketThread::run_server() {
         }
     }
 
-    while ((recvfrom(fd, arr, sizeof(arr), 0, (struct sockaddr *)&from, &fromlen)) > 0) {
+    while (true) {
+        int i = 0;
+        int to_receive = sizeof(matrix_t);
+        int frames = (to_receive / MAX_SOCK_MESSAGE_LEN) + 1;
+
+        if (frames > 1) {
+            for (; i < (frames - 1); i++) {
+                recvfrom(fd, (uint8_t *)temp_arr + (i * MAX_SOCK_MESSAGE_LEN), MAX_SOCK_MESSAGE_LEN,
+                         0, (struct sockaddr *) &from,&fromlen);
+                to_receive -= MAX_SOCK_MESSAGE_LEN;
+            }
+        }
+
+        recvfrom(fd, (uint8_t *)temp_arr + (i * MAX_SOCK_MESSAGE_LEN), to_receive,
+                 0, (struct sockaddr *) &from,&fromlen);
+
+        Instance()->mutex_lock();
+        memcpy(arr, temp_arr, sizeof(arr));
+        Instance()->mutex_unlock();
     }
 }
 
@@ -176,6 +206,7 @@ int main(int argc, char** argv) {
         const int dX = WIDTH/VID2LEN_FRAME_COLS;
         const int dY = HEIGHT/VID2LEN_FRAME_ROWS;
 
+        SocketThread::Instance()->mutex_lock();
         for (auto i = 0; i < VID2LEN_FRAME_ROWS; i++) {
             for (auto j = 0; j < VID2LEN_FRAME_COLS; j++) {
                 rectangle(image,
@@ -185,11 +216,12 @@ int main(int argc, char** argv) {
                           FILLED, LINE_8);
             }
         }
+        SocketThread::Instance()->mutex_unlock();
 
         namedWindow("vid2led_emulator", WINDOW_AUTOSIZE);
         imshow("vid2led_emulator", image);
 
-        if (waitKey(20) == 27) {
+        if (waitKey(10) == 27) {
             break;
         }
     }
